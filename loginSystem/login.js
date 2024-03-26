@@ -36,6 +36,17 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// Function to generate a random 3-digit integer userID
+function generateUniqueUserID() {
+  return Math.floor(100 + Math.random() * 900);
+}
+
+// Function to check if a userID already exists in the database
+async function checkIfUserExists(userID) {
+  const doc = await db.collection('Users').doc(userID.toString()).get();
+  return doc.exists;
+}
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
