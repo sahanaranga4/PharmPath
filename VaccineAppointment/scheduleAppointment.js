@@ -106,7 +106,13 @@ async function scheduleAppointment(username, password, email, date, time, vaccin
   if (!snapshot.empty) {
     return 'Appointment slot not available. Please choose another date or time.';
   }
-
+  //new line added to validate vaccine input
+    let vaccine_snapshot = await db.collection('Vaccine')
+                           .where('Vaccine', '==', vaccine)
+                           .get();
+          if(vaccine_snapshot.empty){
+            return 'Vaccine is either invalid or not available. Please choose either COVID-19, Measles, or varicella.';
+          }
   const apptID = uuidv4();
   const confCode = `dsanjkda${apptID}`;
   let userID = 0;
