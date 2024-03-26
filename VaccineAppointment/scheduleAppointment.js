@@ -29,8 +29,6 @@ const server = http.createServer(async (req, res) => {
       
       let result;
       if (loggedIn) {
-        console.log(username);
-        console.log(password);
         result = await scheduleAppointment(username, password, email, date, time, vaccine);
       } else if(!email && !loggedIn) {
         result = 'Invalid credentials';
@@ -83,7 +81,7 @@ async function login(username, password) {
 }
 
 async function viewInformation(username, password) {
-  if (!username || !password) {
+  if ((password == null) || (username == null)) {
     return 'Missing username and/or password';
   }
   
