@@ -18,7 +18,7 @@ const server = http.createServer(async (req, res) => {
   const { pathname, query } = url.parse(req.url);
   const queryParams = querystring.parse(query);
 
-  if (req.method === 'POST' && pathname === '/scheduleAppointment') { //verifying HTTP request and path
+  if (req.method === 'POST' && pathname === '/scheduleAppointment') {
     let body = '';
     req.on('data', (chunk) => {
       body += chunk.toString();
@@ -36,10 +36,18 @@ const server = http.createServer(async (req, res) => {
         result = 'Invalid credentials';
       }
       else{
+        //schedule appointment function to take in user input data
         result = await scheduleAppointment(username, password, email, date, time, vaccine);
       }
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ result }));
+      if(result === 'Appointment scheduled successfully'){
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ result }));
+      }
+      else{
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ result }));
+      }
+      
     });
   } else if (req.method === 'GET' && pathname === '/') {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -78,7 +86,7 @@ async function viewInformation(username, password) {
   if (!username || !password) {
     return 'Missing username and/or password';
   }
-
+  
   const usersRef = db.collection('Users');
   const snapshot = await usersRef.where('Username', '==', username).get();
   if (snapshot.empty) {
@@ -91,33 +99,46 @@ async function viewInformation(username, password) {
 
 async function scheduleAppointment(username, password, email, date, time, vaccine) {
   if ((!username || !password || !date || !time) && !email) {
-    return 'Missing username, password, time, date, or email'; //function returns if there is parameters missing
+    return 'Missing username, password, time, date, or email';
   }
 
   // Parse the date and time strings into a Date object
   const [year, month, day] = date.split('-').map(Number);
+  //validate date before proceeding
+  
+  if(year.length < 4 || month.length > 2 || day.length > 2){
+    return("Please format the date in YYYY-MM-DD format.");
+  }
+  
+  if(month > 12){
+      return("Invalid month");
+  }
+  else if(month == 2 && (year%4 !== 0) && (day == 29)){
+    return("Not a valid date");
+  }
   const [hours, minutes, seconds] = time.split(':').map(Number);
 
-  // Months are 0-indexed in date js object, so month is month - 1
+  // subtract month from value because of JS month formatting
   const apptDateTime = new Date(year, month - 1, day, hours, minutes, seconds);
+  //console.log(apptDateTime);
   const snapshot = await db.collection('VaccinationAppts')
                             .where('ApptDT', '==', apptDateTime)
                             .get();
   if (!snapshot.empty) {
-    return 'Appointment slot not available. Please choose another date or time.';
+    return("Appointment slot not available. Please choose another date or time.");
   }
-  //new line added to validate vaccine input
-    let vaccine_snapshot = await db.collection('Vaccine')
+//new addition to github
+  let vaccine_snapshot = await db.collection('Vaccine')
                            .where('Vaccine', '==', vaccine)
                            .get();
           if(vaccine_snapshot.empty){
-            return 'Vaccine is either invalid or not available. Please choose either COVID-19, Measles, or varicella.';
+            return("Vaccine is either invalid or not available. Please choose another vaccine.");
           }
   const apptID = uuidv4();
   const confCode = `dsanjkda${apptID}`;
   let userID = 0;
   if (!username || !password) {
-    userID = Math.floor(Math.random() * (999 - 100 + 1)) + 100; //if there is no userID or password generate UserID
+    userID = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
   } else {
     userID = await findUserID(username, password);
   }
@@ -129,7 +150,7 @@ async function scheduleAppointment(username, password, email, date, time, vaccin
     UserID: userID,
     Vaccine: 'COVID-19'
   });
-  return 'Appointment scheduled successfully';
+  return("Appointment scheduled successfully");
 }
 
 
@@ -146,7 +167,7 @@ async function findUserID(username, password) {
     }
   } catch (error) {
     console.error('Error finding user ID:', error);
-    return 100; //this is temporary until error is resolved
+    return null;
   }
 }
 
