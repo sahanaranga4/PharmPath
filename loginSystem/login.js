@@ -80,9 +80,41 @@ app.post('/createUser', async (req, res) => {
     }
 });
 
+const authenticateUser = (req, res, next) => {
+    if (req.session && req.session.user) {
+        // User is authenticated
+        next();
+    } else {
+        // User is not authenticated
+        res.status(401).json({ error: 'Unauthorized access' });
+    }
+};
+
+// User page route with authentication middleware
+app.get('/user/:userID', authenticateUser, async (req, res) => {
+    const { userID } = req.params;
+    const loggedInUserID = req.session.user.UserID;
+    const loggedInUserIDString = loggedInUserID.toString();
+    if (userID !== loggedInUserIDString) {
+        res.status(401).json({ error: 'Unauthorized access, you are not logged in as userID you are accessing!'});
+        return;
+    }
+    try {
+        const doc = await db.collection('Users').doc(userID).get();
+        if (!doc.exists) {
+            res.status(404).json({ message: 'User not found' });
+        } else {
+            res.json({ user: doc.data() });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 //Still need to implement input error handling
 
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
