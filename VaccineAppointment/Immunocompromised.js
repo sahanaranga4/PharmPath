@@ -49,9 +49,10 @@ async function immunocompromised(username, password, email, date, time, vaccine,
             scheduleAppointment(username,password);
             //Check interaction of the vaccine with the patients health history using the database.
         //if no interactions:
-            let vaccine_snapshot = await db.collection('VaccineInteractions')
+            /*let vaccine_snapshot = await db.collection('VaccineInteractions')
                 .where('Vaccine', '==', vaccine)
                 .get();
+                */
             if(!vaccine_snapshot.empty){
                 
                 errorMessage = "This vaccine is not suitable for you. Please select another vaccine";
