@@ -113,7 +113,7 @@ app.get('/user/:userID', authenticateUser, async (req, res) => {
 });
 
 // Edit user route with authentication middleware
-app.post('/edit/:userID', authenticateUser, async (req, res) => {
+app.put('/edit/:usearID', authenticateUser, async (req, res) => {
     const { userID } = req.params;
     const loggedInUserID = req.session.user.UserID;
     const loggedInUserIDString = loggedInUserID.toString();
