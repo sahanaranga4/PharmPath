@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
+const { v4: uuidv4 } = require('uuid');
 const admin = require('firebase-admin');
 
 const app = express();
@@ -49,7 +50,7 @@ async function checkIfUserExists(userID) {
 
 // User creation route
 app.post('/createUser', async (req, res) => {
-    const { username, password, firstName, lastName, dob } = req.body;
+    const { username, password, firstName, lastName, email, address, city, state, dob } = req.body;
     
     let userID = generateUniqueUserID();
     let userExists = await checkIfUserExists(userID);
@@ -67,6 +68,10 @@ app.post('/createUser', async (req, res) => {
             Password: password,
             FirstName: firstName,
             LastName: lastName,
+            Address: address,
+            City: city,
+            State: state,
+            Email: email,
             DOB: dob
         });
         res.json({ message: 'User created successfully', userID });
