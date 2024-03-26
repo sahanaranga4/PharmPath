@@ -11,6 +11,7 @@ admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: 'https://pharmpath-6af52-default-rtdb.firebaseio.com'
 });
+
 const db = admin.firestore();
 const apptRef = db.collection('VaccinationAppts');
 const userRef = db.collection('Users');
@@ -46,7 +47,7 @@ function arrayifyReq(req,res){
     for(i = 0; i < paramsarray.length; i++){  //Setting all the text to capitals for standardization.
         for(j = 0; j < paramsarray[i].length;j++){
             if(paramsarray[i][0].toUpperCase() !== 'CONFIRMATIONCODE'){
-                paramsarray[i][j] = paramsarray[i][j].toUpperCase();
+                paramsarray[i][0] = paramsarray[i][0].toUpperCase();
             } else{
                 paramsarray[i][0] = 'CONFIRMATIONCODE';
             }
@@ -61,14 +62,15 @@ function parseArray(array, res) {
     for (let i = 0; i < array.length; i++) {
         if (array[i][0] == 'MODE' && array[i][1] == 'EDIT') {
             if (hasMode) {
-                errorMessages.push('More than one MODE key, NOT ALLOWED');
+                errorMessages.push('More than one MODE key, NOT ALLOWED.');
                 break;
+            }else if(!hasMode){
+                hasMode = true;
+                checkEditAppt(array, res);
             }
-            hasMode = true;
-            checkEditAppt(array, res);
         } else if (array[i][0] == 'MODE' && array[i][1] == 'CANCEL') {
             if (hasMode) {
-                errorMessages.push('More than one MODE key, NOT ALLOWED');
+                errorMessages.push('More than one MODE key, NOT ALLOWED.');
                 break;
             }
             hasMode = true;
@@ -76,8 +78,12 @@ function parseArray(array, res) {
         }
     }
     
-    if (!hasMode || errorMessages.length > 0) {
+    if (!hasMode) {
         errorMessages.push("No MODE key found or invalid MODE key input, NOT ALLOWED. Valid Modes: EDIT, CANCEL");
+        sendErrorResponse(res, 400, errorMessages.join('\n'));
+        errorMessages = [];
+    }else if (errorMessages.length > 0){
+        errorMessages.push("Error 400: Invalid MODE. Will not execute code.");
         sendErrorResponse(res, 400, errorMessages.join('\n'));
         errorMessages = [];
     }
@@ -97,7 +103,7 @@ async function checkEditAppt(array, res){
     for (let i = 0; i < array.length; i++) {
         if (array[i][0] == 'CONFIRMATIONCODE'){
             if (hasConfCode == true){
-                errorMessages.push('More than one CONFIRMATIONCODE key, NOT ALLOWED');
+                errorMessages.push('More than one CONFIRMATIONCODE key, NOT ALLOWED.');
                 break;
             }else{
             confCodeIndex = i;
@@ -106,7 +112,7 @@ async function checkEditAppt(array, res){
         }
         else if (array[i][0] == 'USERID'){
             if (hasUserid == true){
-                errorMessages.push('More than one USERID key, NOT ALLOWED');
+                errorMessages.push('More than one USERID key, NOT ALLOWED.');
                 break;
             }else{
             UseridIndex = i;
@@ -115,7 +121,7 @@ async function checkEditAppt(array, res){
         }
         else if (array[i][0] == 'DATETIME'){
             if (hasNewDT == true){
-                errorMessages.push('More than one DATETIME key, NOT ALLOWED');
+                errorMessages.push('More than one DATETIME key, NOT ALLOWED.');
                 break;
             }else{
             DTIndex = i;
@@ -124,7 +130,7 @@ async function checkEditAppt(array, res){
         }
         else if (array[i][0] == 'DOCTOR'){
             if (hasNewDoctor == true){
-                errorMessages.push('More than one DOCTOR key, NOT ALLOWED');
+                errorMessages.push('More than one DOCTOR key, NOT ALLOWED.');
                 break;
             }else{
             DoctorIndex = i;
@@ -133,7 +139,7 @@ async function checkEditAppt(array, res){
         }
         else if (array[i][0] == 'VACCINE'){
             if (hasNewVaccine == true){
-                errorMessages.push('More than one VACCINE key, NOT ALLOWED');
+                errorMessages.push('More than one VACCINE key, NOT ALLOWED.');
                 break;
             }else{
             VaccineIndex = i;
@@ -148,7 +154,7 @@ async function checkEditAppt(array, res){
         errorMessages.push('Requires either USERID or CONFIRMATIONCODE keys and at least one of the following edit keys: DOCTOR, VACCINE, USERID, DATETIME');
     }
     if (errorMessages.length > 0){
-        errorMessages.push('400 Bad Request: Did not Access EditAppt');
+        errorMessages.push('400 Bad Request: Does not have valid inputs. Did not Access EditAppt.');
         return -1;
     }else if (errorMessages.length == 0){
         const dates = await EditAppt(array,confCodeIndex, UseridIndex, DTIndex, DoctorIndex, VaccineIndex, res);
@@ -180,10 +186,10 @@ async function EditAppt(array, confCodeIndex, UseridIndex, DTIndex, DoctorIndex,
                     if (DTIndex !== -1) {
                         const DTValue = array[DTIndex][1];
                         const formattedDTValue = StringToDate(DTValue, res);
-                        if(formattedDTValue !== -1){
-                        data.ApptDT = formattedDTValue;
-                        }else{
-                            errorMessages.push( `Error 400: Invalid DATETIME input: ${DTValue}. Please enter in the format: YYYY-MM-DDTHH:MM:SS`);
+                        if (formattedDTValue !== -1) {
+                            data.ApptDT = formattedDTValue;
+                        } else {
+                            errorMessages.push(`Error 400: Invalid DATETIME input: ${DTValue}. Please enter in the format: YYYY-MM-DDTHH:MM:SS`);
                             sendErrorResponse(res, 400, errorMessages.join('\n'));
                             errorMessages = [];
                             return;
@@ -203,8 +209,10 @@ async function EditAppt(array, confCodeIndex, UseridIndex, DTIndex, DoctorIndex,
                     // Update the document in Firestore
                     await doc.ref.update(data);
 
-                    // Send success response
-                    successMessages.push('Appointment updated successfully.')
+                    // Send success response with updated appointment data
+                    successMessages.push('Appointment updated successfully.');
+                    successMessages.push('Updated Appointment Details:');
+                    successMessages.push(JSON.stringify(data)); // Convert updated appointment data to JSON string
                     sendOKResponse(res, 200, successMessages.join('\n'));
                     successMessages = [];
                 } catch (error) {
@@ -227,7 +235,6 @@ async function EditAppt(array, confCodeIndex, UseridIndex, DTIndex, DoctorIndex,
         sendErrorResponse(res, 500, 'Error executing query.');
     }
 }
-
 
 async function checkCancelAppt(array, res) {
     let hasConfCode = false; // Initialize hasConfCode to false
@@ -353,7 +360,6 @@ function sendOKResponse(res, statusCode, successMessages) {
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 });
-
 
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
