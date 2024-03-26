@@ -118,7 +118,8 @@ function scheduleAppointment(username, password, email, date, time) {
         }
 
         // Add the appointment to the database
-        db.collection('VaccinationAppts').add({
+        db.collection('VaccinationAppts').add({ 
+          //adjust what is being added based on VaccinationAppts data table
           ApptDT: apptDateTime,
           Username: username,
           Email: email
