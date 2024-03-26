@@ -47,6 +47,36 @@ async function checkIfUserExists(userID) {
   return doc.exists;
 }
 
+// User creation route
+app.post('/createUser', async (req, res) => {
+    const { username, password, firstName, lastName, dob } = req.body;
+    
+    let userID = generateUniqueUserID();
+    let userExists = await checkIfUserExists(userID);
+
+    // Keep generating a new userID until it's unique
+    while (userExists) {
+        userID = generateUniqueUserID();
+        userExists = await checkIfUserExists(userID);
+    }
+
+    try {
+        await db.collection('Users').doc(userID.toString()).set({
+            UserID: userID,
+            Username: username,
+            Password: password,
+            FirstName: firstName,
+            LastName: lastName,
+            DOB: dob
+        });
+        res.json({ message: 'User created successfully', userID });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+//Still need to implement input error handling
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
