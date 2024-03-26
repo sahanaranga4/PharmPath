@@ -22,24 +22,23 @@ const server = http.createServer((req, res) => {
         body.push(chunk);
     });
     req.on('end', () => {
-        const reqarray = arrayifyReq(req,res);
-        const parsedArray = parseArray(reqarray,res);
+        const health = immunocompromised(username, password, email, date, time, vaccine, immuneWeak, res);
     });
 });
-async function immunocompromised(username, password, email, date, time, vaccine, immunocompromised){
+async function immunocompromised(username, password, email, date, time, vaccine, immuneWeak,res){
     //here the initiating actor sends the username/password
     //this data is sent to the subroutine “login” (UC-1) (participating actor) for validation. 
     //Once the data validation for login is complete, the user is presented with a vaccine appointment screen, which has add/edit appointment buttons. Once  the “add appointment” has been selected, it displays the available appointments for the next 15 days.
     //Database should check the user health history. 
     //Must schedule for appointment first
         scheduleAppointment(username, password, email, date, time);
-        var immunocompromised = false;
+        var immuneWeak = false;
         var nextappt = false;
         let healthConditions = await db.collection('Vaccine')
-                           .where('Immunocompromised', '==', immunocompromised)
+                           .where('Immunocompromised', '==', immuneWeak)
                            .get();  
         if (healthConditions = true) {
-            immunocompromised = true;
+            immuneWeak = true;
             console.log("Please consult a pharmacist because of your delicate health history. Then, select vaccines with care");
         }else{
             multipleVaccines(username, password, email, date, time);
@@ -49,10 +48,9 @@ async function immunocompromised(username, password, email, date, time, vaccine,
             scheduleAppointment(username,password);
             //Check interaction of the vaccine with the patients health history using the database.
         //if no interactions:
-            /*let vaccine_snapshot = await db.collection('VaccineInteractions')
+            let vaccine_snapshot = await db.collection('VaccineInteractions')
                 .where('Vaccine', '==', vaccine)
                 .get();
-                */
             if(!vaccine_snapshot.empty){
                 
                 errorMessage = "This vaccine is not suitable for you. Please select another vaccine";
