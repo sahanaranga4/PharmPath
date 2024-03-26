@@ -148,7 +148,7 @@ async function scheduleAppointment(username, password, email, date, time, vaccin
     ConfCode: confCode,
     Doctor: 'Smith',
     UserID: userID,
-    Vaccine: 'COVID-19'
+    Vaccine: vaccine
   });
   return("Appointment scheduled successfully");
 }
