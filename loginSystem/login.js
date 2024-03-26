@@ -14,6 +14,28 @@ admin.initializeApp({
 });
 const db = admin.firestore();
 
+// For parsing JSON bodies
+app.use(bodyParser.json());
+
+// Login route
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+      const snapshot = await db.collection('Users').where('Username', '==', username).where('Password', '==', password).get();
+      if (snapshot.empty) {
+          res.status(401).json({ message: 'Invalid credentials' });
+      } else {
+          snapshot.forEach(doc => {
+              // Store user information in session
+              req.session.user = doc.data();
+              res.json({ message: 'Login successful!', userID: doc.data().UserID });
+          });
+      }
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
