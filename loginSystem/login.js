@@ -73,7 +73,8 @@ app.post('/createUser', async (req, res) => {
             State: state,
             Email: email,
             Zip: zip,
-            DOB: dob
+            DOB: dob,
+            Searchhistory: []
         });
         res.json({ message: 'User created successfully', userID });
     } catch (error) {
