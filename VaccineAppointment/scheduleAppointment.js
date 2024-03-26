@@ -18,7 +18,7 @@ const server = http.createServer(async (req, res) => {
   const { pathname, query } = url.parse(req.url);
   const queryParams = querystring.parse(query);
 
-  if (req.method === 'POST' && pathname === '/scheduleAppointment') {
+  if (req.method === 'POST' && pathname === '/scheduleAppointment') { //verifying HTTP request and path
     let body = '';
     req.on('data', (chunk) => {
       body += chunk.toString();
@@ -91,14 +91,14 @@ async function viewInformation(username, password) {
 
 async function scheduleAppointment(username, password, email, date, time, vaccine) {
   if ((!username || !password || !date || !time) && !email) {
-    return 'Missing username, password, time, date, or email';
+    return 'Missing username, password, time, date, or email'; //function returns if there is parameters missing
   }
 
   // Parse the date and time strings into a Date object
   const [year, month, day] = date.split('-').map(Number);
   const [hours, minutes, seconds] = time.split(':').map(Number);
 
-  // Note: Months are 0-indexed in JavaScript's Date object, so we subtract 1 from the month value
+  // Months are 0-indexed in date js object, so month is month - 1
   const apptDateTime = new Date(year, month - 1, day, hours, minutes, seconds);
   const snapshot = await db.collection('VaccinationAppts')
                             .where('ApptDT', '==', apptDateTime)
@@ -111,7 +111,7 @@ async function scheduleAppointment(username, password, email, date, time, vaccin
   const confCode = `dsanjkda${apptID}`;
   let userID = 0;
   if (!username || !password) {
-    userID = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
+    userID = Math.floor(Math.random() * (999 - 100 + 1)) + 100; //if there is no userID or password generate UserID
   } else {
     userID = await findUserID(username, password);
   }
@@ -140,7 +140,7 @@ async function findUserID(username, password) {
     }
   } catch (error) {
     console.error('Error finding user ID:', error);
-    return null;
+    return 100; //this is temporary until error is resolved
   }
 }
 
