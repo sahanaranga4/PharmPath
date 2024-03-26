@@ -50,7 +50,7 @@ async function checkIfUserExists(userID) {
 
 // User creation route
 app.post('/createUser', async (req, res) => {
-    const { username, password, firstName, lastName, email, address, city, state, dob } = req.body;
+    const { username, password, firstname, lastname, email, address, city, state, zip, dob } = req.body;
     
     let userID = generateUniqueUserID();
     let userExists = await checkIfUserExists(userID);
@@ -66,12 +66,13 @@ app.post('/createUser', async (req, res) => {
             UserID: userID,
             Username: username,
             Password: password,
-            FirstName: firstName,
-            LastName: lastName,
+            Firstname: firstname,
+            Lastname: lastname,
             Address: address,
             City: city,
             State: state,
             Email: email,
+            Zip: zip,
             DOB: dob
         });
         res.json({ message: 'User created successfully', userID });
