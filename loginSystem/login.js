@@ -112,6 +112,34 @@ app.get('/user/:userID', authenticateUser, async (req, res) => {
     }
 });
 
+// Edit user route with authentication middleware
+app.post('/edit/:userID', authenticateUser, async (req, res) => {
+    const { userID } = req.params;
+    const loggedInUserID = req.session.user.UserID;
+    const loggedInUserIDString = loggedInUserID.toString();
+    
+    if (userID !== loggedInUserIDString) {
+        res.status(401).json({ error: 'Unauthorized access, you are not logged in as the userID you are attempting to edit!' });
+        return;
+    }
+
+    const newData = req.body; // Assuming the request body contains the updated user data
+
+    // Create a new object with capitalized field names
+    const capitalizedData = {};
+    Object.keys(newData).forEach(key => {
+        const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+        capitalizedData[capitalizedKey] = newData[key];
+    });
+
+    try {
+        await db.collection('Users').doc(userID).update(capitalizedData);
+        res.json({ message: 'User data updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 //Still need to implement input error handling
 
 // Start the server
