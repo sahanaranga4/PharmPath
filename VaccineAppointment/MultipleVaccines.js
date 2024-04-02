@@ -1,97 +1,73 @@
-var prompt = require("prompt");
+var prompt = require("prompt-sync");
 var firebase = require("firebase-admin");
 const http = require('http');
 const url = require('url');
 const querystring = require('querystring');
 const hostname = 'localhost';
-const port = 3018;
-const serviceAccount = require("./Key.json");
+const port = 3500;
 
+const serviceAccount = require("./Access.json");
+const scheduleAppointment = require("./scheduleAppointment.js");
 
-firebase.initializeApp({
+/*firebase.initializeApp({
     credential: firebase.credential.cert(serviceAccount),
     databaseURL: 'https://pharmpath-6af52-default-rtdb.firebaseio.com'
 });
-
+*/
 const db = firebase.firestore();
 const apptRef = db.collection('VaccinationAppts');
 const userRef = db.collection('Users');
 
 
 const server = http.createServer((req, res) => {
-    req.on('data', chunk => {
-        body.push(chunk);
-    });
-    req.on('end', () => {
-        const multipleVaccines = multipleVaccines(username, password, email, date, time, vaccine_1, res);
-    });
-});
-function scheduleAppointment(username, password, email, date, time) {
-    return new Promise((resolve, reject) => {
-      if (((!username || !password) || !email) || !date || !time) {
-        resolve('Missing username or password, or email, or date, or time');
-        return;
-      }
-  
-      // Check if the date and time are available
-      const apptDateTime = new Date(`${date}T${time}:00Z`);
-      db.collection('VaccinationAppts')
-        .where('ApptDT', '==', apptDateTime)
-        .get()
-        .then(snapshot => {
-          if (!snapshot.empty) {
-            resolve('Appointment slot not available. Please choose another date or time.');
-            return;
-          }
-  
-          // Add the appointment to the database
-          db.collection('VaccinationAppts').add({ 
-            //adjust what is being added based on VaccinationAppts data table
-            ApptDT: apptDateTime,
-            Username: username,
-            Email: email
-          })
-          .then(() => {
-            resolve('Appointment scheduled successfully');
-          })
-          .catch(error => {
-            console.error('Error scheduling appointment:', error);
-            reject('Error scheduling appointment');
-          });
-        })
-        .catch(error => {
-          console.error('Error checking appointment availability:', error);
-          reject('Error scheduling appointment');
+    const { pathname, query } = url.parse(req.url);
+    console.log("Pathname: ",pathname);
+    console.log("Query: ",query);
+    console.log("Request method: ", req.method);
+    console.log("Request URL: ", req.url);
+    const queryParams = querystring.parse(query);
+    if (req.method === 'POST' && pathname === '/MultipleVaccines/') {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
         });
-    });
-  }
-async function multipleVaccines(username, password, email, date, time, vaccine_1,res){
+        req.on('end', () => {
+            const { username, password, email, date, time, vaccine } = JSON.parse(body);
+            console.log("Username: ", username);
+            console.log("Password: ", password);
+            console.log("Email: ", email);
+            multipleVaccines(username, password, email, date, time, vaccine,res);
+        });
+    }
+});
+
+async function multipleVaccines(username, password, email, date, time, vaccine,res){
 	//here the initiating actor sends the username/password
 	//this data is sent to the subroutine “login” (UC-1) (participating actor) for validation. 
 	//Once the data validation for login is complete, the user is presented with a vaccine appointment screen, which has add/edit appointment buttons. Once  the “add appointment” has been selected, it displays the available appointments for the next 15 days.
     //Must schedule for appointment first
-	scheduleAppointment(username, password, email, date, time);
+	scheduleAppointment(username, password, email, date, time, vaccine);
             //Check interaction of the vaccine with the patients health history using the database.
         //if no interactions:
         var nextappt = false;
-        var vaccine_2;
-        
+        let vaccineCount = 1;
+        //var safe = false;
         while(nextappt = true){
-            prompt("Would you like to schedule another vaccine?", vaccine_2);
+            console.log("Would you like to schedule another vaccine?");
             let vaccine_snapshot = await db.collection('VaccineInteractions')
-                .where('Vaccine1', '==', vaccine_1)
-                .where('Vaccine2', '==', vaccine_2)
-                .get();
-            if(vaccine_snapshot = false){
+                .where('Vaccine1', '==', 'Flu')
+                .where('Vaccine2', '==', 'COVID')
+                //.where('Safe' ,'==', safe)
+                .get('Safe');
+            console.log("Vaccine Snapshot: ", vaccine_snapshot.empty);
+            if(!vaccine_snapshot.empty){
+                sendErrorResponse(res, 400, "This vaccine is not suitable for you. Please select another vaccine");
                 
-                errorMessage = "This vaccine is not suitable for you. Please select another vaccine";
-                sendErrorResponse(res, 400, errorMessage);
             
         //Check for interactions between vaccinations
             }else{
                 vaccineCount++;
-                successMessage = "Vaccine successfully scheduled";
-                sendOKResponse(res, statusCode, successMessages)
+                sendOKResponse(res, 200, "Vaccine successfully scheduled");
             }
             
         }
