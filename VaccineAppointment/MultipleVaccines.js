@@ -40,7 +40,66 @@ const server = http.createServer((req, res) => {
         });
     }
 });
-
+/*
+async function scheduleAppointment(username, password, email, date, time, vaccine) {
+    if ((!username || !password || !date || !time) && !email) {
+      return 'Missing username, password, time, date, or email';
+    }
+  
+    // Parse the date and time strings into a Date object
+    const [year, month, day] = date.split('-').map(Number);
+    //validate date before proceeding
+    
+    if(year.length < 4 || month.length > 2 || day.length > 2){
+      return("Please format the date in YYYY-MM-DD format.");
+    }
+    
+    if(month > 12){
+        return("Invalid month");
+    }
+    else if(month == 2 && (year%4 !== 0) && (day == 29)){
+      return("Not a valid date");
+    }
+    const [hours, minutes, seconds] = time.split(':').map(Number);
+  
+    // subtract month from value because of JS month formatting
+    const apptDateTime = new Date(year, month - 1, day, hours, minutes, seconds);
+    //console.log(apptDateTime);
+    
+        const snapshot = await db.collection('Users')
+                              .where('ApptDT', '==', apptDateTime)
+                              .get();
+    
+    
+    if (!snapshot.empty) {
+      return("Appointment slot not available. Please choose another date or time.");
+    }
+  //new addition to github
+    console.log("Vaccine:" + vaccine);
+    let vaccine_snapshot = await db.collection('Vaccine')
+                             .where('Vaccine', '==', vaccine)
+                             .get();
+            if(vaccine_snapshot.empty){
+              return("Vaccine is either invalid or not available. Please choose another vaccine.");
+            }
+    const apptID = uuidv4();
+    const confCode = `dsanjkda${apptID}`;
+    let userID = 0;
+    if (!username || !password) {
+      userID = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
+    } else {
+      userID = await findUserID(username, password);
+    }
+    await db.collection('VaccinationAppts').add({
+      ApptID: apptID,
+      ApptDT: apptDateTime,
+      ConfCode: confCode,
+      Doctor: 'Smith',
+      UserID: userID,
+      Vaccine: vaccine
+    });
+    return("Appointment scheduled successfully");
+  }*/
 async function multipleVaccines(username, password, email, date, time, vaccine,res){
 	//here the initiating actor sends the username/password
 	//this data is sent to the subroutine “login” (UC-1) (participating actor) for validation. 
@@ -55,10 +114,10 @@ async function multipleVaccines(username, password, email, date, time, vaccine,r
         while(nextappt = true){
             console.log("Would you like to schedule another vaccine?");
             let vaccine_snapshot = await db.collection('VaccineInteractions')
-                .where('Vaccine1', '==', 'Flu')
-                .where('Vaccine2', '==', 'COVID')
+                .where('Vaccine1', '==', 'Varicella')
+                .where('Vaccine2', '==', 'Measles')
                 //.where('Safe' ,'==', safe)
-                .get('Safe');
+                .get();
             console.log("Vaccine Snapshot: ", vaccine_snapshot.empty);
             if(!vaccine_snapshot.empty){
                 sendErrorResponse(res, 400, "This vaccine is not suitable for you. Please select another vaccine");
