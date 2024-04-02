@@ -1,0 +1,95 @@
+const functions = require('firebase-functions');
+const express = require('express');
+const bodyParser = require('body-parser');
+const nodemailer = require('nodemailer');
+const admin = require('firebase-admin');
+var admin = require("firebase-admin");
+
+const serviceAccount = require("/Users/navya/Downloads/pharmpath-6af52-firebase-adminsdk-k3ogp-ca0a5ce74a.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://pharmpath-6af52-default-rtdb.firebaseio.com"
+});
+
+
+const app = express();
+
+app.use(bodyParser.json());
+
+// Mock data for appointments
+let appointments = [];
+
+// Endpoint to handle cancellation requests
+app.post('/cancel-appointment', (req, res) => {
+    const { appointmentId } = req.body;
+    const cancelledAppointment = cancelAppointment(appointmentId);
+    if (cancelledAppointment) {
+        res.status(200).json({ message: 'Appointment cancelled successfully' });
+    } else {
+        res.status(400).json({ error: 'Appointment not found or cannot be cancelled' });
+    }
+});
+
+// Function to cancel appointment
+function cancelAppointment(appointmentId) {
+    const index = appointments.findIndex(appointment => appointment.id === appointmentId);
+    if (index !== -1) {
+        appointments.splice(index, 1);
+        return true;
+    }
+    return false;
+}
+
+// Endpoint to mock adding appointments
+app.post('/add-appointment', (req, res) => {
+    const { medicineName, pickupTime, userEmail } = req.body;
+    const newAppointment = {
+        id: appointments.length + 1,
+        medicineName,
+        pickupTime,
+        userEmail
+    };
+    appointments.push(newAppointment);
+    res.status(201).json({ message: 'Appointment added successfully', appointment: newAppointment });
+});
+
+// Endpoint to mock sending cancellation notifications
+app.post('/send-cancellation-notification', (req, res) => {
+    const { appointmentId } = req.body;
+    const appointment = appointments.find(appointment => appointment.id === appointmentId);
+    if (appointment) {
+        sendCancellationNotification(appointment);
+        res.status(200).json({ message: 'Cancellation notification sent successfully' });
+    } else {
+        res.status(400).json({ error: 'Appointment not found' });
+    }
+});
+
+// Function to send cancellation notification
+function sendCancellationNotification(appointment) {
+    const transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+            user: 'your_email@gmail.com',
+            pass: 'your_password'
+        }
+    });
+
+    const mail = {
+        from: 'your_email@gmail.com',
+        to: appointment.userEmail,
+        subject: 'Appointment Cancellation Notification',
+        text: `Your appointment for ${appointment.medicineName} on ${appointment.pickupTime} has been canceled.`
+    };
+
+    transporter.sendMail(mail, (error, info) => {
+        if (error) {
+            console.error('Error sending cancellation notification email:', error);
+        } else {
+            console.log('Cancellation notification email sent successfully');
+        }
+    });
+}
+
+exports.app = functions.https.onRequest(app);
