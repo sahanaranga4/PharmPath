@@ -5,7 +5,7 @@ const admin = require('firebase-admin');
 const serviceAccount = require('./Key.json');
 
 const hostname = 'localhost';
-const port = 3022;
+const port = 3023;
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -42,7 +42,7 @@ function arrayifyReq(req,res){
         else {
             paramsarray[count] = param;
         }
-        count++;
+        count++;    
     }
     for(i = 0; i < paramsarray.length; i++){  //Setting all the text to capitals for standardization.
         for(j = 0; j < paramsarray[i].length;j++){
@@ -53,7 +53,6 @@ function arrayifyReq(req,res){
             }
         }
     }
-    console.log(paramsarray);
     return paramsarray;
 }
 
@@ -182,18 +181,51 @@ async function EditAppt(array, confCodeIndex, UseridIndex, DTIndex, DoctorIndex,
                 try {
                     const data = doc.data();
 
+                    // Initialize variable to track whether date already exists
+                    let dateExists = false;
+
                     // Update values if provided in the array
                     if (DTIndex !== -1) {
                         const DTValue = array[DTIndex][1];
-                        const formattedDTValue = StringToDate(DTValue, res);
+                        let formattedDTValue = StringToDate(DTValue, res);
                         if (formattedDTValue !== -1) {
-                            data.ApptDT = formattedDTValue;
+                            console.log(DTValue)
+                            const checkhour = await checkAppointmentHours(DTValue);
+                            console.log(checkhour);
+                            if(checkhour == false){
+                                errorMessages.push(`Error 400: DATETIME Not within Specified Business Hours. We are open 8AM to 5PM every day.`);
+                                sendErrorResponse(res, 400, errorMessages.join('\n'));
+                                errorMessages = [];
+                                return;
+                            }else{
+                                formattedDTValue = await roundToNearestMinutes(DTValue);
+                                console.log(formattedDTValue);
+                                // Check if the rounded date already exists in the database
+                                const existingApptsQuery = apptRef.where('ApptDT', '==', formattedDTValue).get();
+                                const existingApptsSnapshot = await existingApptsQuery;
+                                if (!existingApptsSnapshot.empty) {
+                                    // Date already exists in the database, return error
+                                    errorMessages.push(`Error 409: Appointment already exists for the specified date and time: ${formattedDTValue}`);
+                                    sendErrorResponse(res, 409, errorMessages.join('\n'));
+                                    errorMessages = [];
+                                    dateExists = true; // Set flag to true
+                                } else {
+                                    // Date does not exist in the database, proceed with update
+                                    data.ApptDT = formattedDTValue;
+                                }
+                            }
                         } else {
+                            // Invalid date format, return error
                             errorMessages.push(`Error 400: Invalid DATETIME input: ${DTValue}. Please enter in the format: YYYY-MM-DDTHH:MM:SS`);
                             sendErrorResponse(res, 400, errorMessages.join('\n'));
                             errorMessages = [];
                             return;
                         }
+                    }
+
+                    // If date already exists, skip further processing
+                    if (dateExists) {
+                        return;
                     }
 
                     if (DoctorIndex !== -1) {
@@ -344,6 +376,60 @@ function StringToDate(string, res){
     return formattedDate;
 }
 
+async function roundToNearestMinutes(date) {
+    return new Promise((resolve, reject) => {
+        try {
+            const roundedDate = new Date(date);
+
+            // Get the current minutes
+            const minutes = roundedDate.getMinutes();
+
+            // Calculate the remainder when dividing minutes by 30
+            const remainder = minutes % 30;
+
+            // Round down to the nearest multiple of 30
+            const roundedMinutes = Math.floor(minutes / 30) * 30;
+
+            // Calculate the difference between the rounded and original minutes
+            const diffToFloor = minutes - roundedMinutes;
+            const diffToCeil = roundedMinutes + 30 - minutes;
+
+            // Determine whether to round up or down based on which is closer
+            const roundedMinutesFinal = (diffToFloor < diffToCeil) ? roundedMinutes : (roundedMinutes + 30);
+
+            // Set the minutes to the rounded value
+            roundedDate.setMinutes(roundedMinutesFinal);
+
+            // Set seconds and milliseconds to zero
+            roundedDate.setSeconds(0);
+            roundedDate.setMilliseconds(0);
+
+            // If roundedMinutesFinal equals 60, increment hour and set minutes to zero
+            if (roundedMinutesFinal === 60) {
+                roundedDate.setHours(roundedDate.getHours() + 1);
+                roundedDate.setMinutes(0);
+            }
+
+            resolve(roundedDate);
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+async function checkAppointmentHours(date) {
+    date = new Date(date);
+    const appointmentHour = date.getHours();
+    console.log(date);
+    if (appointmentHour < 8 || appointmentHour >= 17) {
+        errorMessages.push(`Appointments cannot be sceheduled at ${date}`);
+        return false;
+    }else{
+        return true;
+    }
+}
+
+
 function sendErrorResponse(res, statusCode, errorMessage) {
     res.writeHead(statusCode, { 'Content-Type': 'text/plain' });
     res.write(errorMessage);
@@ -356,10 +442,6 @@ function sendOKResponse(res, statusCode, successMessages) {
     res.end();
 }
 
-
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
-});
 
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
