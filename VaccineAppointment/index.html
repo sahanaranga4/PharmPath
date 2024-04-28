@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Schedule Appointment</title>
+    <style>
+      /* Add any CSS styles you need */
+    </style>
+  </head>
+  <body>
+    <h1>Schedule Appointment</h1>
+
+    <div>
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username">
+    </div>
+
+    <div>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password">
+    </div>
+
+    <div>
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email">
+    </div>
+
+    <div>
+      <label for="date">Date:</label>
+      <input type="date" id="date" name="date">
+    </div>
+
+    <div>
+      <label for="time">Time:</label>
+      <input type="time" id="time" name="time">
+    </div>
+
+    <div>
+      <label for="vaccine">Vaccine:</label>
+      <input type="text" id="vaccine" name="vaccine">
+    </div>
+
+    <button id="schedule-btn">Schedule Appointment</button>
+
+    <div id="result"></div>
+
+    <script>
+      // Add your client-side JavaScript code here
+      const usernameInput = document.getElementById('username');
+      const passwordInput = document.getElementById('password');
+      const emailInput = document.getElementById('email');
+      const dateInput = document.getElementById('date');
+      const timeInput = document.getElementById('time');
+      const vaccineInput = document.getElementById('vaccine');
+      const scheduleBtn = document.getElementById('schedule-btn');
+      const resultDiv = document.getElementById('result');
+
+      scheduleBtn.addEventListener('click', async () => {
+        const formData = {
+          username: usernameInput.value,
+          password: passwordInput.value,
+          email: emailInput.value,
+          date: dateInput.value,
+          time: timeInput.value,
+          vaccine: vaccineInput.value,
+        };
+
+        try {
+          const response = await fetch('/scheduleAppointment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            resultDiv.textContent = `${data.result}: ${data.username}, ${data.date}, ${data.time}, ${data.vaccine}`;
+          } else {
+            resultDiv.textContent = data.result;
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          resultDiv.textContent = 'An error occurred. Please try again later.';
+        }
+      });
+    </script>
+  </body>
+</html>
