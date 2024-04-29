@@ -1,27 +1,31 @@
+
 var firebase = require("firebase-admin");
 const http = require('http');
 const url = require('url');
 const querystring = require('querystring');
 const hostname = 'localhost';
 const port = 3018;
-const serviceAccount = require("./Key.json");
+const serviceAccount = require("./Access.json");
+const scheduleAppointment = require('./scheduleAppointment'); //schedule appointment file
+const login = require('./scheduleAppointment');
 
-
-firebase.initializeApp({
-    credential: firebase.credential.cert(serviceAccount),
-    databaseURL: 'https://pharmpath-6af52-default-rtdb.firebaseio.com'
-});
+//firebase.initializeApp({
+ //   credential: firebase.credential.cert(serviceAccount),
+  //  databaseURL: 'https://pharmpath-6af52-default-rtdb.firebaseio.com'
+//});
 
 const db = firebase.firestore();
 const apptRef = db.collection('VaccinationAppts');
 const userRef = db.collection('Users');
-
-
+const vaccineRef = db.collection('Vaccines')
+//editing server
 const server = http.createServer((req, res) => {
+    let body = '';
     req.on('data', chunk => {
-        body.push(chunk);
+        body += chunk.toString();
     });
     req.on('end', () => {
+        const { username, password, email, date, time, vaccine, immuneWeak } = JSON.parse(body);
         const health = immunocompromised(username, password, email, date, time, vaccine, immuneWeak, res);
     });
 });
@@ -31,39 +35,52 @@ async function immunocompromised(username, password, email, date, time, vaccine,
     //Once the data validation for login is complete, the user is presented with a vaccine appointment screen, which has add/edit appointment buttons. Once  the “add appointment” has been selected, it displays the available appointments for the next 15 days.
     //Database should check the user health history. 
     //Must schedule for appointment first
-        scheduleAppointment(username, password, email, date, time);
-        var immuneWeak = false;
-        var nextappt = false;
-        let healthConditions = await db.collection('Vaccine')
-                           .where('Immunocompromised', '==', immuneWeak)
-                           .get();  
-        if (healthConditions = true) {
-            immuneWeak = true;
-            console.log("Please consult a pharmacist because of your delicate health history. Then, select vaccines with care");
-        }else{
-            multipleVaccines(username, password, email, date, time);
+   
+        const isValidUser = await login(username, password);
+        if (!isValidUser) {
+            return sendErrorResponse(res, 401, "Invalid credentials.");
         }
         
-        while(nextappt = true){
-            scheduleAppointment(username,password);
+        const vaccineSnapshot = await db.collection('Vaccine').where('Vaccine', '==', vaccine).get();
+        // Check if the vaccine is defined
+    if (typeof vaccine === 'undefined') {
+        return sendErrorResponse(res, 400, "Vaccine is not specified.");
+    }
+        if (vaccineSnapshot.empty) {
+            return sendErrorResponse(res, 400, "Vaccine is either invalid or not available. Please choose another vaccine.");
+        }
+        
+        const vaccineDoc = vaccineSnapshot.docs[0].data();
+        const immunocompromised = vaccineDoc.Immunocompromised;
+    
+        if (immuneWeak && !immunocompromised) {
+            return sendErrorResponse(res, 400, "Please consult a pharmacist because of your delicate health history. Then, select vaccines with care.");
+        }
+    
+        scheduleAppointment(username, password, email, date, time, vaccine);
+        return sendOKResponse(res, 200, "Appointment scheduled successfully.");
+    
+        
+        //while(nextappt = true){
+         //   scheduleAppointment(username,password);
             //Check interaction of the vaccine with the patients health history using the database.
         //if no interactions:
-            let vaccine_snapshot = await db.collection('VaccineInteractions')
-                .where('Vaccine', '==', vaccine)
-                .get();
-            if(!vaccine_snapshot.empty){
+          //  let vaccine_snapshot = await db.collection('VaccineInteractions')
+            //    .where('Vaccine', '==', vaccine)
+            //    .get();
+            //if(!vaccine_snapshot.empty){
                 
-                errorMessage = "This vaccine is not suitable for you. Please select another vaccine";
-                sendErrorResponse(res, 400, errorMessage);
+               // errorMessage = "This vaccine is not suitable for you. Please select another vaccine";
+               // sendErrorResponse(res, 400, errorMessage);
             
         //Check for interactions between vaccinations
-            }else{
-                vaccineCount++;
-                successMessage = "Vaccine successfully scheduled";
-                sendOKResponse(res, statusCode, successMessages)
-            }
-        }
-    return getConfirmationCode();
+           // }else{
+             //   vaccineCount++;
+             //   successMessage = "Vaccine successfully scheduled";
+             //   sendOKResponse(res, statusCode, successMessages)
+          //  }
+      //  }
+   // return getConfirmationCode();
 }
 function sendErrorResponse(res, statusCode, errorMessage) {
     res.writeHead(statusCode, { 'Content-Type': 'text/plain' });
