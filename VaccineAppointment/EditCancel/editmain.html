@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Appointment</title>
+    <style>
+    </style>
+</head>
+<body>
+    <h1>Edit Appointment</h1>
+
+    <div>
+        <label for="confirmationcode">Confirmation Code:</label>
+        <input type="text" id="confirmationcode" name="confirmationcode" required>
+    </div>
+
+    <div>
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date">
+    </div>
+
+    <div>
+        <label for="time">Time:</label>
+        <input type="time" id="time" name="time">
+    </div>
+
+    <div>
+        <label for="vaccine">Vaccine:</label>
+        <input type="text" id="vaccine" name="vaccine">
+    </div>
+
+    <div>
+        <label for="doctor">Doctor:</label>
+        <input type="text" id="doctor" name="doctor">
+    </div>
+
+    <button id="edit-btn">Edit</button>
+
+    <div id="result"></div>
+
+    <script>
+        url = '?MODE=EDIT'
+
+        const editBtn = document.getElementById('edit-btn');
+        const resultDiv = document.getElementById('result');
+        
+
+        editBtn.addEventListener('click', async () => {
+            // Clear the URL parameters before adding new ones
+            url = '?MODE=EDIT';
+
+            // Retrieve the values of input fields when the button is clicked
+            const doctorInput = document.getElementById('doctor').value;
+            if (doctorInput !== ''){
+                url = url + '&DOCTOR=' + encodeURIComponent(doctorInput);
+            }
+            const vaccineInput = document.getElementById('vaccine').value;
+            if (vaccineInput !== ''){
+                url = url + '&VACCINE=' + encodeURIComponent(vaccineInput);
+            }
+            const dateInput = document.getElementById('date').value;
+            const timeInput = document.getElementById('time').value;
+
+            // Extract hour and minute components from time input
+            const [hour, minute] = timeInput.split(':');
+
+            // Concatenate date and time components
+            const dateTimeValue = dateInput + 'T' + hour + ':' + minute;
+
+            if (dateInput !== '' && timeInput !== '') {
+                url = url + '&DATETIME=' + encodeURIComponent(dateTimeValue);
+            }
+            const confCodeInput = document.getElementById('confirmationcode').value;
+            if (confCodeInput !== ''){
+                url = url + '&CONFIRMATIONCODE=' + encodeURIComponent(confCodeInput);
+            }
+    
+            
+            try {
+                const response = await fetch(`http://localhost:3025/` + url, { // Change the URL to match your server endpoint
+                    method: 'POST',
+                    headers: {
+                        // 'Content-Type': 'application/json; charset=UTF-8',
+                        // 'Access-Control-Allow-Origin' : '*',
+                        // 'Access-Control-Allow-Methods' : 'GET, POST, PUT',
+                        // 'credentials': 'include'
+                    },
+
+                });
+
+
+                const data = await response.text();
+                
+                if (response.ok) {
+                    resultDiv.textContent = data; // Display the response from the server
+                } else {
+                    resultDiv.textContent = data; // Display the error message from the server
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.textContent = 'An error occurred. Please try again later.';
+            }
+        });
+    </script>
+</body>
+</html>
