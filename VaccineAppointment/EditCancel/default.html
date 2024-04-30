@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="./default.css">
+  <title>Editing an Appointment</title>
+</head>
+<body>
+  <h1>Editing an Appointment</h1>
+  <p>Editting an Appointment means to change the content of your desired appointment. Cancelling is for removing an appointment from the database.</p>
+  <p>Choose one of the following options:</p>
+  <button onclick="redirectToPage('editmain.html')">Edit Appointment</button>
+  <button onclick="redirectToPage('cancelmain.html')">Cancel Appointment</button>
+
+  <script>
+    function redirectToPage(url) {
+      window.location.href = url;
+    }
+  </script>
+</body>
+</html>
