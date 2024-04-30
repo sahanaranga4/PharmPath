@@ -1,11 +1,10 @@
-//Import Modules
-const http = require('node:http');
+const http = require('http');
 const url = require('url');
 const admin = require('firebase-admin');
 const serviceAccount = require('./Key.json');
 
-const hostname = 'localhost';
-const port = 3023;
+const hostname = 'localhost';   
+const port = 3025;
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -20,7 +19,7 @@ const server = http.createServer((req, res) => {
     req.on('data', chunk => {
         body.push(chunk);
     });
-    req.on('end', () => {
+    req.on('end', async () => {
         const reqarray = arrayifyReq(req,res);
         const parsedArray = parseArray(reqarray,res);
     });
@@ -33,7 +32,6 @@ function arrayifyReq(req,res){
     let paramsarray = [];
     count = 0;
     var params = new URLSearchParams(req.url);
-
     for (param of params.entries()) {
         if (count == 0) {
             let first = param[0].substring(2, param[0].length);
@@ -44,6 +42,7 @@ function arrayifyReq(req,res){
         }
         count++;    
     }
+
     for(i = 0; i < paramsarray.length; i++){  //Setting all the text to capitals for standardization.
         for(j = 0; j < paramsarray[i].length;j++){
             if(paramsarray[i][0].toUpperCase() !== 'CONFIRMATIONCODE'){
@@ -53,6 +52,7 @@ function arrayifyReq(req,res){
             }
         }
     }
+    console.log('Paramsarray:', paramsarray)
     return paramsarray;
 }
 
@@ -173,7 +173,7 @@ async function EditAppt(array, confCodeIndex, UseridIndex, DTIndex, DoctorIndex,
 
         // Perform query based on Confirmation Code
         const codeSnapshot = await codeQuery;
-
+    
         // Check if there are documents matching the query
         if (!codeSnapshot.empty) {
             // Iterate over the documents
@@ -188,21 +188,25 @@ async function EditAppt(array, confCodeIndex, UseridIndex, DTIndex, DoctorIndex,
                     if (DTIndex !== -1) {
                         const DTValue = array[DTIndex][1];
                         let formattedDTValue = StringToDate(DTValue, res);
+                        const checkApptDate = await checkAppointmentDate(DTValue);
                         if (formattedDTValue !== -1) {
-                            console.log(DTValue)
                             const checkhour = await checkAppointmentHours(DTValue);
-                            console.log(checkhour);
-                            if(checkhour == false){
+                            if(checkApptDate ==-1){
+                                errorMessages.push(`Error 400: DATETIME provided is in the past. Please provide a future date.`);
+                                sendErrorResponse(res, 400, errorMessages.join('\n'));
+                                errorMessages = [];
+                                return;
+                            }else if(checkhour == false){
                                 errorMessages.push(`Error 400: DATETIME Not within Specified Business Hours. We are open 8AM to 5PM every day.`);
                                 sendErrorResponse(res, 400, errorMessages.join('\n'));
                                 errorMessages = [];
                                 return;
                             }else{
                                 formattedDTValue = await roundToNearestMinutes(DTValue);
-                                console.log(formattedDTValue);
                                 // Check if the rounded date already exists in the database
                                 const existingApptsQuery = apptRef.where('ApptDT', '==', formattedDTValue).get();
                                 const existingApptsSnapshot = await existingApptsQuery;
+                                
                                 if (!existingApptsSnapshot.empty) {
                                     // Date already exists in the database, return error
                                     errorMessages.push(`Error 409: Appointment already exists for the specified date and time: ${formattedDTValue}`);
@@ -242,8 +246,9 @@ async function EditAppt(array, confCodeIndex, UseridIndex, DTIndex, DoctorIndex,
                     await doc.ref.update(data);
 
                     // Send success response with updated appointment data
-                    successMessages.push('Appointment updated successfully.');
-                    successMessages.push('Updated Appointment Details:');
+                    successMessages.push('Appointment updated successfully.\n\n');
+                    successMessages.push('Updated Appointment Details:\n\n');
+                    console.log('ok');
                     successMessages.push(JSON.stringify(data)); // Convert updated appointment data to JSON string
                     sendOKResponse(res, 200, successMessages.join('\n'));
                     successMessages = [];
@@ -337,7 +342,6 @@ async function CancelAppt(array, confCodeIndex, UseridIndex, res) {
         if (!codeSnapshot.empty) {
             // Iterate over the documents and delete each one
             codeSnapshot.forEach(doc => {
-                console.log('Document to delete:', doc);
                 const deletedData = doc.data(); // Retrieve data before deletion
                 let fieldsString = ''; // Initialize string for key-value pairs
                 // Construct key-value pairs string
@@ -420,7 +424,6 @@ async function roundToNearestMinutes(date) {
 async function checkAppointmentHours(date) {
     date = new Date(date);
     const appointmentHour = date.getHours();
-    console.log(date);
     if (appointmentHour < 8 || appointmentHour >= 17) {
         errorMessages.push(`Appointments cannot be sceheduled at ${date}`);
         return false;
@@ -429,15 +432,26 @@ async function checkAppointmentHours(date) {
     }
 }
 
+async function checkAppointmentDate(date){
+    const currentDate = new Date();
+    const apptDate = new Date(date);
+    //If the current datetime is later on the calendar than the appt date, return an error code, else return OK code.
+    if(currentDate >= apptDate){
+        return -1;
+    }else{
+        return 0;
+    }
+}
+
 
 function sendErrorResponse(res, statusCode, errorMessage) {
-    res.writeHead(statusCode, { 'Content-Type': 'text/plain' });
+    res.writeHead(statusCode, { 'Content-Type': 'text/plain' , 'Access-Control-Allow-Origin' : '*', 'Access-Control-Allow-Methods' : 'GET, POST, PUT'});
     res.write(errorMessage);
     res.end();
 }
 
 function sendOKResponse(res, statusCode, successMessages) {
-    res.writeHead(statusCode, { 'Content-Type': 'text/plain' });
+    res.writeHead(statusCode, { 'Content-Type': 'text/plain' , 'Access-Control-Allow-Origin' : '*', 'Access-Control-Allow-Methods' : 'GET, POST, PUT'});
     res.write(successMessages);
     res.end();
 }
