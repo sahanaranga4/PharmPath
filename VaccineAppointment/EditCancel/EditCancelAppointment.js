@@ -150,10 +150,10 @@ async function checkEditAppt(array, res){
     hasReq = ((hasConfCode) && (hasNewDT || hasNewDoctor || hasNewVaccine));
     
     if (hasReq == false){
-        errorMessages.push('Requires either USERID or CONFIRMATIONCODE keys and at least one of the following edit keys: DOCTOR, VACCINE, USERID, DATETIME');
+        errorMessages.push('Requires either USERID or CONFIRMATIONCODE keys and at least one of the following edit keys: DOCTOR, VACCINE, DATETIME');
     }
     if (errorMessages.length > 0){
-        errorMessages.push('400 Bad Request: Does not have valid inputs. Did not Access EditAppt.');
+        errorMessages.push('400 Bad Request: Does not have valid inputs.');
         return -1;
     }else if (errorMessages.length == 0){
         const dates = await EditAppt(array,confCodeIndex, UseridIndex, DTIndex, DoctorIndex, VaccineIndex, res);
@@ -304,7 +304,6 @@ async function checkCancelAppt(array, res) {
         errorMessages.push('One or More Missing Required keys: CONFIRMATIONCODE');
     }
     if (errorMessages.length > 0) {
-        errorMessages.push('400 Bad Request: Did not Access CancelAppt.');
         sendErrorResponse(res, 400, errorMessages.join('\n'));
         errorMessages = [];
     } else if (errorMessages.length == 0) {
