@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+    <header>
+        <h1 style="font-size: 36px;">Medicine Pickup</h1>
+        <p>Welcome to Medicine Pickup. Reserve, lookup, and cancel your appointments below.</p>
+    </header> 
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #0b2956;
+            color: white;
+            padding: 0.05px 0;
+            text-align: center;
+        }
+
+        nav {
+            background-color: #1976d2;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        nav a {
+            color: rgb(247, 249, 251);
+            text-decoration: none;
+            padding: 10px 20px;
+        }
+
+        nav a:hover {
+            background-color: #0d47a1;
+            border-radius: 5px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #f8f8f9;
+        }
+    
+        h2 {
+            text-align: center;
+            color: #2a63c0;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input[type="text"], input[type="datetime-local"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #1565c0;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            background-color: #1565c0;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0d47a1;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        footer {
+            background-color: #1565c0;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#reserve">Reserve Appointment</a>
+        <a href="#lookup">Lookup Reservations</a>
+        <a href="#cancel">Cancel Appointment</a>
+    </nav>
+
+    <div class="container" id="reserve">
+        <h2>Reserve Appointment</h2>
+        <form id="reserveForm">
+            <label for="medicineName">Medicine Name:</label>
+            <input type="text" id="medicineName" name="medicineName" required><br>
+            <label for="pickupTime">Pickup Time:</label>
+            <input type="datetime-local" id="pickupTime" name="pickupTime" required><br>
+            <label for="userID">Name:</label>
+            <input type="text" id="userID" name="userID" required><br>
+            <button type="submit">Reserve Appointment</button>
+        </form>
+    </div>
+
+    <div class="container" id="lookup">
+        <h2>Lookup Reservations</h2>
+        <form id="lookupForm">
+            <label for="patientIdentifier">Patient Identifier:</label>
+            <input type="text" id="patientIdentifier" name="patientIdentifier" required><br>
+            <button type="submit">Lookup Reservations</button>
+        </form>
+        <div id="reservationList"></div>
+    </div>
+
+    <div class="container" id="cancel">
+        <h2>Cancel Appointment</h2>
+        <form id="cancelForm">
+            <label for="confirmationCode">Confirmation Code:</label>
+            <input type="text" id="confirmationCode" name="confirmationCode" required><br>
+            <button type="submit">Cancel Appointment</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 PharmPath. All rights reserved.</p>
+    </footer>
+</body>
+</html>
