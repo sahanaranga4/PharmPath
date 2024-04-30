@@ -2,7 +2,7 @@ const admin = require("firebase-admin");
 const http = require('http');
 
 // Load Firebase service account credentials
-const serviceAccount = require("C:\\Users\\Harshini\\Downloads\\pharmpath-6af52-firebase-adminsdk-k3ogp-8037a0df4b.json");
+const serviceAccount = require("C:\\Users\\Harshini\\Downloads\\pharmpath-6af52-firebase-adminsdk-zwmbt-077af73b83.json");
 
 // Initialize Firebase Admin SDK with credentials and database URL
 admin.initializeApp({
@@ -62,7 +62,7 @@ const server = http.createServer((req, res) => {
 });
 
 // Set the port for the server to listen on
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 // Start the server and log its status
 server.listen(PORT, () => {
@@ -75,6 +75,7 @@ async function handleRequest(data, res) {
         // Case: Reserve Date
         case 'reserveDate':
             try {
+                // Proceed with reservation
                 const confirmation = await reserveDate(data);
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ confirmationCode: confirmation }));
@@ -85,10 +86,28 @@ async function handleRequest(data, res) {
                 res.end('Error reserving date');
             }
             break;
+
+        // Function to look up reservations for a patient
+async function lookupReservations(patientIdentifier) {
+    const db = admin.database();
+    const ref = db.ref("Medicine Pickup");
+    const snapshot = await ref.orderByChild('userID').equalTo(patientIdentifier).once('value');
+    const appointments = snapshot.val();
+    return appointments ? Object.values(appointments) : [];
+}
+
+// Modify the handleRequest function to handle the 'lookupReservations' case
+async function handleRequest(data, res) {
+    switch (data.type) {
+        // Other cases...
+        
         // Case: Lookup Reservations
         case 'lookupReservations':
             try {
+                // Call lookupReservations function to retrieve reservations
                 const patientReservations = await lookupReservations(data.patientIdentifier);
+                
+                // Respond with the retrieved reservations
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify(patientReservations));
             } catch (error) {
@@ -98,6 +117,11 @@ async function handleRequest(data, res) {
                 res.end('Error looking up reservations');
             }
             break;
+        
+       
+    }
+}
+
         // Case: Cancel Reservation
         case 'cancelReservation':
             try {
@@ -111,6 +135,7 @@ async function handleRequest(data, res) {
                 res.end('Error canceling reservation');
             }
             break;
+
         // Default case: Invalid request type
         default:
             res.writeHead(400, { 'Content-Type': 'text/plain' });
@@ -123,14 +148,24 @@ async function reserveDate(data) {
     const db = admin.database();
     const ref = db.ref("Medicine Pickup");
     const appointmentRef = ref.push();
-    await appointmentRef.set({
+    
+    // Generate confirmation code
+    const confirmationCode = generateConfirmationCode();
+    
+    // Create appointment object
+    const appointmentData = {
         AppointmentID: appointmentRef.key,
-        ConfirmationCode: generateConfirmationCode(),
+        ConfirmationCode: confirmationCode,
         MedicineName: data.medicineName,
         PickupTime: data.pickupTime,
         userID: data.userID
-    });
-    return appointmentRef.key;
+    };
+
+    // Store appointment in the database
+    await appointmentRef.set(appointmentData);
+    
+    // Return confirmation code
+    return confirmationCode;
 }
 
 // Function to look up reservations for a patient
@@ -159,5 +194,6 @@ async function cancelReservation(confirmationCode) {
 
 // Function to generate a confirmation code
 function generateConfirmationCode() {
-    return Math.random().toString(36).substr(2, 9);
+    return Math.random().toString();
 }
+
