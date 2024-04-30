@@ -2,41 +2,45 @@
 <html>
 <head>
     <title>Edit Appointment</title>
-    <style>
-    </style>
+    <link rel="stylesheet" type="text/css" href="css/editmain.css">
 </head>
 <body>
-    <h1>Edit Appointment</h1>
+    <div class="container">
+        <h1>Edit Appointment</h1>
 
-    <div>
-        <label for="confirmationcode">Confirmation Code:</label>
-        <input type="text" id="confirmationcode" name="confirmationcode" required>
+        <div>
+            <label for="confirmationcode">Confirmation Code:</label>
+            <input type="text" id="confirmationcode" name="confirmationcode" required>
+        </div>
+
+        <div>
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date">
+        </div>
+
+        <div>
+            <label for="time">Time:</label>
+            <input type="time" id="time" name="time">
+        </div>
+
+        <div>
+            <label for="vaccine">Vaccine:</label>
+            <input type="text" id="vaccine" name="vaccine">
+        </div>
+
+        <div>
+            <label for="doctor">Doctor:</label>
+            <input type="text" id="doctor" name="doctor">
+        </div>
+
+        <button id="edit-btn">Edit</button>
+
     </div>
 
-    <div>
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date">
+    <div class = 'resultbox'>
+        <div id="result"></div>
     </div>
-
-    <div>
-        <label for="time">Time:</label>
-        <input type="time" id="time" name="time">
-    </div>
-
-    <div>
-        <label for="vaccine">Vaccine:</label>
-        <input type="text" id="vaccine" name="vaccine">
-    </div>
-
-    <div>
-        <label for="doctor">Doctor:</label>
-        <input type="text" id="doctor" name="doctor">
-    </div>
-
-    <button id="edit-btn">Edit</button>
-
-    <div id="result"></div>
-
+    
     <script>
         url = '?MODE=EDIT'
 
@@ -79,10 +83,6 @@
                 const response = await fetch(`http://localhost:3025/` + url, { // Change the URL to match your server endpoint
                     method: 'POST',
                     headers: {
-                        // 'Content-Type': 'application/json; charset=UTF-8',
-                        // 'Access-Control-Allow-Origin' : '*',
-                        // 'Access-Control-Allow-Methods' : 'GET, POST, PUT',
-                        // 'credentials': 'include'
                     },
 
                 });
