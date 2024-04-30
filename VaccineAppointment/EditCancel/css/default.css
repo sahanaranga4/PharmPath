@@ -1,28 +1,47 @@
+/* Apply styles to the body */
 body {
     font-family: Arial, sans-serif;
-	margin: 0;
-	padding: 0;
-	background: url(background.svg) no-repeat center center fixed;
-	background-size: cover;
+    margin: 0;
+    padding: 0;
+    background: url(background.svg) no-repeat center center fixed; /* Set background image */
+    background-size: cover; /* Cover the entire viewport */
+    display: flex; /* Use flexbox */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 100vh; /* Set the height to full viewport height */
 }
 
+/* Apply styles to the main container */
+.container {
+    background-color: white; /* White background */
+    padding: 30px; /* Add padding */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add shadow */
+    text-align: center; /* Center text */
+}
+
+/* Apply styles to the heading */
 h1 {
     color: #007bff; /* Blue header text */
 }
 
+/* Apply styles to paragraphs */
 p {
-    color: #007bff; /* Blue paragraph text */
+    color: #333; /* Dark gray text */
+    margin-bottom: 20px; /* Add some space below paragraphs */
 }
 
+/* Apply styles to buttons */
 button {
     background-color: #007bff; /* Blue button background */
     color: #fff; /* White button text */
     border: none; /* Remove button border */
     padding: 10px 20px; /* Add padding */
     cursor: pointer; /* Show pointer cursor on hover */
-    margin-right: 10px; /* Add some space between buttons */
+    margin: 0 10px; /* Add margin around buttons */
 }
 
+/* Apply styles to buttons on hover */
 button:hover {
     background-color: #0056b3; /* Darker blue on hover */
 }
