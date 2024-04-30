@@ -1,0 +1,74 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url(background.svg) no-repeat center center fixed; /* Set background image */
+    background-size: cover; /* Cover the entire viewport */
+    display: flex; /* Use flexbox */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 100vh; /* Set the height to full viewport height */
+}
+
+/* Apply styles to the main container */
+.container {
+    position: relative; /* Position relative for absolute positioning of resultbox */
+    background-color: white; /* White background */
+    padding: 30px; /* Add padding */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add shadow */
+}
+
+/* Apply styles to the result box */
+.resultbox {
+    position: absolute; /* Position absolute for bottom placement */
+    bottom: 50px; /* Set distance from bottom */
+    left: 0; /* Align to left */
+    right: 0; /* Align to right */
+    margin: auto; /* Center horizontally */
+    width: 80%; /* Set width */
+    padding: 10px; /* Add padding */
+    background-color: #f8f9fa; /* Light gray background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add shadow */
+    text-align: center; /* Center text */
+    transition: bottom 0.3s ease; /* Smooth transition */
+}
+
+/* Apply styles to the heading */
+h1 {
+    color: #007bff; /* Blue header text */
+}
+
+/* Apply styles to labels */
+label {
+    color: #007bff; /* Blue label text */
+}
+
+/* Apply styles to text inputs */
+input[type="text"] {
+    border: 1px solid #007bff; /* Blue border for text input */
+    border-radius: 4px; /* Rounded corners */
+    padding: 8px; /* Add padding */
+}
+
+/* Apply styles to buttons */
+button {
+    background-color: #007bff; /* Blue button background */
+    color: #fff; /* White button text */
+    border: none; /* Remove button border */
+    padding: 10px 20px; /* Add padding */
+    cursor: pointer; /* Show pointer cursor on hover */
+    margin-top: 10px; /* Add some space above the button */
+}
+
+/* Apply styles to buttons on hover */
+button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Apply styles to the result message */
+#result {
+    margin-top: 20px; /* Add some space below the button */
+    color: #007bff; /* Blue text color for result */
+}
