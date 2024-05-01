@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User Information</title>
+    <link rel="stylesheet" href="../css/edit.css">
+    <link rel="stylesheet" href="../css/globalTask.css">
+</head>
+<body>
+    <iframe src="../html/taskbar.html" frameborder="0" width="100%" height="50px"></iframe>
+    <div class="container">
+        <h1>Edit User Information</h1>
+        <form id="editForm">
+            <!-- Input fields for editing user information -->
+            <label id="usernameLabel" for="username">Username:</label>
+            <span id="usernameSpan">
+                <span id="usernameText"></span>
+                <button type="button" class="editBtn" data-field="username">Edit</button>
+                <input type="text" class="editInput" id="username" name="username" style="display: none;">
+            </span>
+
+            <!-- Add similar structure for other fields -->
+            <label id="firstnameLabel" for="firstname">First Name:</label>
+            <span id="firstnameSpan">
+                <span id="firstnameText"></span>
+                <button type="button" class="editBtn" data-field="firstname">Edit</button>
+                <input type="text" class="editInput" id="firstname" name="firstname" style="display: none;">
+            </span>
+
+            <label id="lastnameLabel" for="lastname">Last Name:</label>
+            <span id="lastnameSpan">
+                <span id="lastnameText"></span>
+                <button type="button" class="editBtn" data-field="lastname">Edit</button>
+                <input type="text" class="editInput" id="lastname" name="lastname" style="display: none;">
+            </span>
+
+            <label id="emailLabel" for="email">Email:</label>
+            <span id="emailSpan">
+                <span id="emailText"></span>
+                <button type="button" class="editBtn" data-field="email">Edit</button>
+                <input type="email" class="editInput" id="email" name="email" style="display: none;">
+            </span>
+
+            <label id="addressLabel" for="address">Address:</label>
+            <span id="addressSpan">
+                <span id="addressText"></span>
+                <button type="button" class="editBtn" data-field="address">Edit</button>
+                <input type="text" class="editInput" id="address" name="address" style="display: none;">
+            </span>
+
+            <label id="cityLabel" for="city">City:</label>
+            <span id="citySpan">
+                <span id="cityText"></span>
+                <button type="button" class="editBtn" data-field="city">Edit</button>
+                <input type="text" class="editInput" id="city" name="city" style="display: none;">
+            </span>
+
+            <label id="stateLabel" for="state">State:</label>
+            <span id="stateSpan">
+                <span id="stateText"></span>
+                <button type="button" class="editBtn" data-field="state">Edit</button>
+                <input type="text" class="editInput" id="state" name="state" style="display: none;">
+            </span>
+
+            <label id="zipLabel" for="zip">Zip Code:</label>
+            <span id="zipSpan">
+                <span id="zipText"></span>
+                <button type="button" class="editBtn" data-field="zip">Edit</button>
+                <input type="text" class="editInput" id="zip" name="zip" style="display: none;">
+            </span>
+
+            <label id="dobLabel" for="dob">Date of Birth:</label>
+            <span id="dobSpan">
+                <span id="dobText"></span>
+                <button type="button" class="editBtn" data-field="dob">Edit</button>
+                <input type="date" class="editInput" id="dob" name="dob" style="display: none;">
+            </span>
+
+            <label id="immunocompromisedLabel" for="immunocompromised">Immunocompromised:</label>
+            <span id="immunocompromisedSpan">
+                <span id="immunocompromisedText"></span>
+                <button type="button" class="editBtn" data-field="immunocompromised">Edit</button>
+                <select class="editInput" id="immunocompromised" name="immunocompromised" style="display: none;">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+            </span>
+
+            <!-- New password fields -->
+            <label id="newPasswordLabel" for="newPassword" style="display: none;">New Password:</label>
+            <input type="password" id="newPassword" name="newPassword" style="display: none;">
+            <label id="confirmPasswordLabel" for="confirmPassword" style="display: none;">Confirm New Password:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" style="display: none;">
+            <!-- "Change Password" button -->
+            <button id="changePasswordBtn">Change Password</button>
+
+            <!-- Current password field -->
+            <label id="currentPasswordLabel" for="currentPassword">Please enter your current password to save changes::</label>
+            <input type="password" id="currentPassword" name="currentPassword" required>
+            <button type="submit">Save Changes</button>
+        </form>
+        <div id="loginMessage" style="display: none;">
+            <p>You are not logged in. Please log in using the button below.</p>
+            <button id="loginBtn">Login</button>
+        </div>
+        <div id="message"></div>
+    </div>
+
+    <script src="../scripts/edit.js"></script>
+</body>
+</html>

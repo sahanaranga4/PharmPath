@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <link rel="stylesheet" href="../css/createUser.css">
+    <link rel="stylesheet" href="../css/globalTask.css">
+</head>
+<body>
+    <iframe src="../html/taskbar.html" frameborder="0" width="100%" height="50px"></iframe>
+    <div class="container">
+        <h1>User Registration</h1>
+        <form id="registerForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <label for="firstname">First Name:</label>
+            <input type="text" id="firstname" name="firstname" required>
+            <label for="lastname">Last Name:</label>
+            <input type="text" id="lastname" name="lastname" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address" required>
+            <label for="city">City:</label>
+            <input type="text" id="city" name="city" required>
+            <label for="state">State:</label>
+            <input type="text" id="state" name="state" required>
+            <label for="zip">Zip Code:</label>
+            <input type="text" id="zip" name="zip" required>
+            <label for="dob">Date of Birth:</label>
+            <input type="date" id="dob" name="dob" required>
+
+            <label for="immunocompromised">Immunocompromised:</label>
+            <select id="immunocompromised" name="immunocompromised">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+
+
+            <button type="submit">Register</button>
+        </form>
+        <div id="registerMessage"></div>
+    </div>
+
+    <script src="../scripts/createUser.js"></script>
+</body>
+</html>

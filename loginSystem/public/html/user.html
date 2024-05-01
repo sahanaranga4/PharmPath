@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="../css/user.css">
+    <link rel="stylesheet" href="../css/globalTask.css">
+</head>
+<body>
+    <iframe src="../html/taskbar.html" frameborder="0" width="100%" height="50px"></iframe>
+    <div class="container">
+        <h1>User Profile</h1>
+        <div id="userInfo">
+            <p id="username"></p>
+            <p id="email"></p>
+            <p id="firstName"></p>
+            <p id="lastName"></p>
+            <p id="address"></p>
+            <p id="city"></p>
+            <p id="state"></p>
+            <p id="zip"></p>
+            <p id="dob"></p>
+            <p id="immunocompromised"></p>
+            <!-- Add more HTML elements to display user data as needed -->
+        </div>
+        <div id="loginMessage" style="display: none;">
+            <p>You are not logged in. Please log in using the button below.</p>
+            <button id="loginBtn">Login</button>
+        </div>
+        <button id="editBtn" style="display: none;">Edit Information</button>
+        <button id="logoutBtn" style="display: none;">Logout</button>
+    </div>
+
+    <script src="../scripts/user.js"></script>
+</body>
+</html>
