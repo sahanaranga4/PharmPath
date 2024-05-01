@@ -1,0 +1,120 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: url(../css/background.svg) no-repeat center center fixed;
+    background-size: cover;
+    font-family: Arial, sans-serif;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    height: 100vh; 
+}
+
+/* Adjust container positioning */
+.container {
+    margin-top: 50px; /* Add margin to the top to account for the task bar */
+    width: 35%; /* Add width to the container */
+    background-color: white; /* Background color */
+    padding: 15px; /* Padding */
+    border-radius: 20px; /* Border radius */
+    display: flex; /* To center the form vertically */
+    flex-direction: column; /* Align items vertically */
+    align-items: center; /* Center horizontally */
+}
+
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+
+form h2{
+    text-align: center;
+    font-size: 50px;
+}
+
+.container p {
+    text-align: center;
+    padding-bottom: 50px;
+}
+
+ellipse{
+    position: absolute;
+    width: 379px;
+    height: 379px;
+    left: 0px;
+    top: 898px;
+
+    background: #2D55FB;
+    filter: blur(275px);
+}
+
+label {
+    margin-bottom: 5px;
+}
+
+input, button {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    align-items: center;
+    text-transform: capitalize; 
+    font-family: Verdana;
+    font-size: 15px;
+}
+
+button[type="submit"]{
+    width: 78%;
+}
+
+.password-input-container {
+    display: flex; 
+    align-items: center;
+    width: 77%; 
+    padding-bottom: 15px;
+}
+
+.password-input-wrapper {
+    position: relative;
+    flex: 1; 
+}
+
+.password-toggle-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #007bff; 
+    font-size: 14px; 
+}
+
+.password-toggle-button:hover {
+    text-decoration: underline; 
+}
+
+input[type="text"], input[type="password"] {
+    width: 75%; 
+    height: 30px; 
+}
+
+#message {
+    text-align: center; 
+    margin-top: 10px;
+    font-size: larger;
+    font-weight: 700;
+}
+

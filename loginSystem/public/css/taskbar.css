@@ -1,0 +1,28 @@
+body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  header {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff; /* Text color */
+    position: fixed; /* Fixed position to stay on top */
+    width: 100%; /* Full width */
+    top: 0; /* Stick to the top */
+  }
+  
+  .container {
+    max-width: 960px; /* Max width of the container */
+    padding: 20px; /* Add padding to the container */
+  }
+  
+  h1 {
+    margin: 0; /* Remove default margin for the heading */
+  }
+  
+  a {
+    color: inherit; /* Inherit the color from its parent element */
+    text-decoration: none; /* Remove underline */
+    cursor: pointer; /* Change cursor to pointer on hover */
+    font-family: Arial, sans-serif;;
+}
